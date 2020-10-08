@@ -2,7 +2,7 @@
 //  GameScene.swift
 //  FlappyBird
 //
-//  Created by 田中美幸 on 2020/10/07.
+//  Created by 田中美幸 on 2020/10/08.
 //  Copyright © 2020 miyuki.tanaka2. All rights reserved.
 //
 
@@ -16,8 +16,13 @@ class GameScene: SKScene {
     //ゲームオーバー時に止めないからscrollNodeと別で宣言
     var wallNode:SKNode!
     
+    var bird:SKSpriteNode!
+    
     //SKView上にシーンが表示されたときに呼ばれるメソッド（viewDidLoad的な）
     override func didMove(to view: SKView) {
+        
+        //重力を設定(physicsWorldのgravityプロパティを使う)
+        physicsWorld.gravity = CGVector(dx: 0, dy: -4)
         
         //背景色(最大数は1)
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
@@ -34,6 +39,7 @@ class GameScene: SKScene {
         setupGround()
         setupCloud()
         setupWall()
+        setupBird()
     }
     
     func setupGround() {
@@ -69,6 +75,12 @@ class GameScene: SKScene {
             
             //スプライトにアクションを設定する
             sprite.run(repeatScrollGround)
+            
+            //重力の計算をする
+            sprite.physicsBody = SKPhysicsBody(rectangleOf: groundTexture.size())
+
+            //衝突した時に動かないようにする
+            sprite.physicsBody?.isDynamic = false
             
             //スプライトを追加する
             scrollNode.addChild(sprite)
@@ -180,6 +192,12 @@ class GameScene: SKScene {
             //下側の壁の位置を指定
             under.position = CGPoint(x: 0, y: under_wall_y)
             
+            //
+            under.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
+            
+            //衝突したら動かないようにする
+            under.physicsBody?.isDynamic = false
+            
             //下の壁を追加する
             wall.addChild(under)
             
@@ -188,6 +206,12 @@ class GameScene: SKScene {
             
             //
             upper.position = CGPoint(x: 0, y: under_wall_y + wallTexture.size().height + slit_length)
+            
+            //
+            upper.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
+            
+            //衝突したら動かないようにする
+            upper.physicsBody?.isDynamic = false
             
             //上の壁を追加する
             wall.addChild(upper)
@@ -208,4 +232,43 @@ class GameScene: SKScene {
         //wallNodeにrepeatForeverAnimationの機能を設定する
         wallNode.run(repeatForeverAnimation)
     }
+    
+    func setupBird() {
+        
+        //鳥の画像を読み込む
+        let birdTextureA = SKTexture(imageNamed: "bird_a")
+        birdTextureA.filteringMode = .linear
+        let birdTextureB = SKTexture(imageNamed: "bird_b")
+        birdTextureB.filteringMode = .linear
+
+        //2種類のテクスチャを交互に変更するアニメーションを作成(リピートさせる)
+        let texturesAnimation = SKAction.animate(with: [birdTextureA, birdTextureB], timePerFrame: 0.2)
+        let flap = SKAction.repeatForever(texturesAnimation)
+
+        //スプライトを作成
+        bird = SKSpriteNode(texture: birdTextureA)
+        
+        //鳥が重力を受けて下に落ちていく
+        bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2)
+        
+        //鳥を表示する位置を指定する
+        bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
+
+        //アニメーションをbirdに設定する
+        bird.run(flap)
+
+        //スプライトを追加する
+        addChild(bird)
+    }
+    
+    //画面をタップした時に呼ばれる
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+
+        //鳥の速度をゼロにする
+        bird.physicsBody?.velocity = CGVector.zero
+        
+        //鳥に縦方向の力を与える
+        bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 15))
+    }
 }
+
