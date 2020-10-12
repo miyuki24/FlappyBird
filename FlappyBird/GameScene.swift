@@ -86,10 +86,10 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             //スプライトにアクションを設定する
             sprite.run(repeatScrollGround)
             
-            //重力の計算をする
+            //物理演算を受けられるように四角形のスプライトとして設定
             sprite.physicsBody = SKPhysicsBody(rectangleOf: groundTexture.size())
-
-            //どのカテゴリーを使うのか設定する
+            
+            //自身のカテゴリーを選択する
             sprite.physicsBody?.categoryBitMask = groundCategory
             
             //衝突した時に動かないようにする
@@ -205,7 +205,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             //下側の壁の位置を指定
             under.position = CGPoint(x: 0, y: under_wall_y)
             
-            //
+            //物理演算を受けられるように四角形のノードとして設定
             under.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
             
             //衝突したら動かないようにする
@@ -217,10 +217,10 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             //壁の画像を取得(テクスチャを作成)
             let upper = SKSpriteNode(texture: wallTexture)
             
-            //
+            //壁の上部の位置を指定する
             upper.position = CGPoint(x: 0, y: under_wall_y + wallTexture.size().height + slit_length)
             
-            //
+            //物理演算を受けられるように四角形のノードとして設定
             upper.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
             
             //衝突したら動かないようにする
@@ -235,14 +235,19 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             //見えないけど衝突した時にカウントするノードの位置を設定する
             scoreNode.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.height / 2)
             
-            //
+            //物理演算を受けられるように四角形のノードとして設定
             scoreNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
             
             //衝突したら動かないようにする
             scoreNode.physicsBody?.isDynamic = false
+            
+            //自身のカテゴリーを選択する
             scoreNode.physicsBody?.categoryBitMask = self.scoreCategory
+            
+            //衝突の判定対象を指定する
             scoreNode.physicsBody?.contactTestBitMask = self.birdCategory
-
+            
+            //見えないけど衝突した時にカウントするノードを追加する
             wall.addChild(scoreNode)
             
             //壁にwallAnimation機能を設定する
@@ -269,11 +274,11 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         birdTextureA.filteringMode = .linear
         let birdTextureB = SKTexture(imageNamed: "bird_b")
         birdTextureB.filteringMode = .linear
-
+        
         //2種類のテクスチャを交互に変更するアニメーションを作成(リピートさせる)
         let texturesAnimation = SKAction.animate(with: [birdTextureA, birdTextureB], timePerFrame: 0.2)
         let flap = SKAction.repeatForever(texturesAnimation)
-
+        
         //スプライトを作成
         bird = SKSpriteNode(texture: birdTextureA)
         
@@ -282,58 +287,109 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         //衝突した時に回転させない
         bird.physicsBody?.allowsRotation = false
-
+        
         //どのカテゴリーを使うのか設定する
         bird.physicsBody?.categoryBitMask = birdCategory
+        
+        //自身のカテゴリーを指定する
         bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
+        
+        //衝突の判定対象を指定する
         bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory
         
         //鳥を表示する位置を指定する
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
-
+        
         //アニメーションをbirdに設定する
         bird.run(flap)
-
+        
         //スプライトを追加する
         addChild(bird)
     }
     
-    //SKPhysicsContactDelegateのメソッド。衝突した時に呼ばれる
+    //衝突した時に呼ばれるメソッド
     func didBegin(_ contact: SKPhysicsContact) {
         
-        // ゲームオーバーのときは何もしない
+        //スクロールが停止になりゲームオーバーになった時
         if scrollNode.speed <= 0 {
+            
+            //何もしない(壁に衝突してゲームオーバーになった後、地面にも衝突するので2度目の処理を行うことになるのを防ぐ)
             return
         }
-
+        
+        //引数の持つSKPhysicsBodyプロパティ(bodyA・bodyB)を使って何と何が衝突したか判定する
+        //スコア用の物体と衝突した時
         if (contact.bodyA.categoryBitMask & scoreCategory) == scoreCategory || (contact.bodyB.categoryBitMask & scoreCategory) == scoreCategory {
-            // スコア用の物体と衝突した
+            
             print("ScoreUp")
             score += 1
+            
+            //壁か地面に衝突した時
         } else {
-            // 壁か地面と衝突した
+            
             print("GameOver")
-
-            // スクロールを停止させる
+            
+            //スクロールを停止させる
             scrollNode.speed = 0
-
+            
+            //衝突の判定対象を地面だけにする（地面と衝突した時のみアクションを設定したい・そのまま落下させたい）
             bird.physicsBody?.collisionBitMask = groundCategory
-
+            
+            //回転するアクションを定義
             let roll = SKAction.rotate(byAngle: CGFloat(Double.pi) * CGFloat(bird.position.y) * 0.01, duration:1)
+            
+            //回転が終わって地面に衝突したら
             bird.run(roll, completion:{
+                
+                //スクロールを停止させる
                 self.bird.speed = 0
             })
         }
     }
     
-    //画面をタップした時に呼ばれる
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-
-        //鳥の速度をゼロにする
+    func restart() {
+        
+        //スコアをゼロに戻す
+        score = 0
+        
+        //鳥の位置を初期位置に戻す
+        bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
+        
+        //速度をゼロに戻す
         bird.physicsBody?.velocity = CGVector.zero
         
-        //鳥に縦方向の力を与える
-        bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 15))
+        //衝突の判定対象を設定する(地面と壁)
+        bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
+        
+        //回転をなくす
+        bird.zRotation = 0
+        
+        //壁を取り除く
+        wallNode.removeAllChildren()
+        
+        //鳥とスクロールの速度を戻す
+        bird.speed = 1
+        scrollNode.speed = 1
+    }
+    
+    //画面をタップした時に呼ばれる
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        //スクロールのスピードが0以上(鳥が停止していない)時は
+        if scrollNode.speed > 0 {
+            
+            //鳥の速度をゼロにする
+            bird.physicsBody?.velocity = CGVector.zero
+            
+            //鳥に縦方向の力を与える
+            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 15))
+            
+        //鳥が停止している時は
+        } else if bird.speed == 0 {
+            
+            //ゲームを再開する
+            restart()
+        }
     }
 }
 
