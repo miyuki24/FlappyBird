@@ -23,9 +23,17 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     let groundCategory: UInt32 = 1 << 1
     let wallCategory: UInt32 = 1 << 2
     let scoreCategory: UInt32 = 1 << 3
-    
+
     //スコアをカウントする
     var score = 0
+    
+    //スコアを表示させる
+    var scoreLabelNode:SKLabelNode!
+    var bestScoreLabelNode:SKLabelNode!
+    var itemScoreLabelNode:SKLabelNode!
+    
+    //UserDefaultsクラスのUserDefaults.standardプロパティで値を保存する仕組みを得る
+    let userDefaults:UserDefaults = UserDefaults.standard
     
     //SKView上にシーンが表示されたときに呼ばれるメソッド（viewDidLoad的な）
     override func didMove(to view: SKView) {
@@ -50,6 +58,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         setupCloud()
         setupWall()
         setupBird()
+        
+        setupScoreLabel()
     }
     
     func setupGround() {
@@ -307,6 +317,69 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         addChild(bird)
     }
     
+    func setupScoreLabel() {
+        
+        //初めのスコアは0
+        score = 0
+        
+        //プロパティを指定
+        scoreLabelNode = SKLabelNode()
+        
+        //ラベルの色を指定
+        scoreLabelNode.fontColor = UIColor.black
+        
+        //ラベルの位置を指定
+        scoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 60)
+        
+        //ラベルを一番上に持ってくるように設定
+        scoreLabelNode.zPosition = 100
+        
+        //左詰めに表示する
+        scoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        
+        //ラベルに反映
+        scoreLabelNode.text = "Score:\(score)"
+        
+        //scoreLabelNodeを追加する
+        self.addChild(scoreLabelNode)
+        
+        //プロパティを指定
+        bestScoreLabelNode = SKLabelNode()
+        
+        //ラベルの色を指定
+        bestScoreLabelNode.fontColor = UIColor.black
+        
+        //ラベルの位置を指定
+        bestScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 90)
+        
+        //ラベルを一番上に持ってくるように設定
+        bestScoreLabelNode.zPosition = 100
+        
+        //左詰めに表示する
+        bestScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        
+        //ベストスコアをのデータを取得する
+        let bestScore = userDefaults.integer(forKey: "BEST")
+        
+        //ラベルに反映
+        bestScoreLabelNode.text = "Best Score:\(bestScore)"
+        
+        //ベストスコアを追加する
+        self.addChild(bestScoreLabelNode)
+        
+        itemScoreLabelNode = SKLabelNode()
+        
+        itemScoreLabelNode.fontColor = UIColor.black
+        
+        itemScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
+        
+        itemScoreLabelNode.zPosition = 100
+        
+        itemScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+    }
+    
+    
+    
     //衝突した時に呼ばれるメソッド
     func didBegin(_ contact: SKPhysicsContact) {
         
@@ -323,6 +396,24 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             
             print("ScoreUp")
             score += 1
+            scoreLabelNode.text = "Score:\(score)"
+            //BESTをキーにして指定する・bestScoreを宣言する
+            var bestScore = userDefaults.integer(forKey: "BEST")
+            
+            //もしスコアがベストスコアより高かった時
+            if score > bestScore {
+                
+                //今回のスコアをベストスコアにする
+                bestScore = score
+                
+                bestScoreLabelNode.text = "Best Score:\(bestScore)"
+                
+                //キーを指定して保存する
+                userDefaults.set(bestScore, forKey: "BEST")
+                
+                //即座に保存させる
+                userDefaults.synchronize()
+            }
             
             //壁か地面に衝突した時
         } else {
@@ -351,6 +442,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         //スコアをゼロに戻す
         score = 0
+        
+        scoreLabelNode.text = "Score:\(score)"
         
         //鳥の位置を初期位置に戻す
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
@@ -384,7 +477,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             //鳥に縦方向の力を与える
             bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 15))
             
-        //鳥が停止している時は
+            //鳥が停止している時は
         } else if bird.speed == 0 {
             
             //ゲームを再開する
