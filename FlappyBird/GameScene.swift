@@ -15,17 +15,18 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     
     //ゲームオーバー時に止めないからscrollNodeと別で宣言
     var wallNode:SKNode!
-    
     var bird:SKSpriteNode!
+    var item:SKSpriteNode!
     
     //カテゴリー(衝突判定に使うIDのこと)(カテゴリーを使ってどのスプライトが衝突したか判断する)
     let birdCategory: UInt32 = 1 << 0
     let groundCategory: UInt32 = 1 << 1
     let wallCategory: UInt32 = 1 << 2
     let scoreCategory: UInt32 = 1 << 3
-
+    
     //スコアをカウントする
     var score = 0
+    var itemScore = 0
     
     //スコアを表示させる
     var scoreLabelNode:SKLabelNode!
@@ -58,6 +59,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         setupCloud()
         setupWall()
         setupBird()
+        setupItem()
         
         setupScoreLabel()
     }
@@ -317,6 +319,35 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         addChild(bird)
     }
     
+    func setupItem(){
+        
+        //アイテム画像を読み込む(画像優先)
+        let itemTexture = SKTexture(imageNamed: "item")
+        itemTexture.filteringMode = .linear
+        
+        //壁画像を読み込む（画像優先）
+        let wallTexture = SKTexture(imageNamed: "wall")
+        wallTexture.filteringMode = .linear
+        
+        //移動する距離を計算する
+        let ItemmovingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
+        
+        //必要な枚数を計算する
+        let needNumber = Int(self.frame.size.width / wallTexture.size().width) + 2
+        
+        //4秒間で移動する
+        let moveItem = SKAction.moveBy(x: -ItemmovingDistance, y: 0, duration:4)
+        let resetItem = SKAction.moveBy(x: ItemmovingDistance, y: 0, duration: 0)
+        
+        //移動を繰り返す
+        let repeatScrollItem = SKAction.sequence([moveItem,resetItem])
+        
+        for i in 0..<needNumber {
+            
+        }
+        
+    }
+    
     func setupScoreLabel() {
         
         //初めのスコアは0
@@ -367,17 +398,13 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         //ベストスコアを追加する
         self.addChild(bestScoreLabelNode)
         
+        //アイテムスコアラベル
         itemScoreLabelNode = SKLabelNode()
-        
         itemScoreLabelNode.fontColor = UIColor.black
-        
         itemScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
-        
         itemScoreLabelNode.zPosition = 100
-        
         itemScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
     }
-    
     
     
     //衝突した時に呼ばれるメソッド
@@ -485,4 +512,3 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         }
     }
 }
-
