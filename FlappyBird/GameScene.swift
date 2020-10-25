@@ -16,15 +16,14 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     //ゲームオーバー時に止めないからscrollNodeと別で宣言
     var wallNode:SKNode!
     var bird:SKSpriteNode!
-    var itemNode:SKSpriteNode!
+    var itemNode:SKNode!
     
     //カテゴリー(衝突判定に使うIDのこと)(カテゴリーを使ってどのスプライトが衝突したか判断する)
     let birdCategory: UInt32 = 1 << 0
     let groundCategory: UInt32 = 1 << 1
     let wallCategory: UInt32 = 1 << 2
     let scoreCategory: UInt32 = 1 << 3
-    let itemCategory: UInt32 = 1 << 4
-    let itemScoreCategory: UInt32 = 1 << 5
+    let itemScoreCategory: UInt32 = 1 << 4
     
     //スコアをカウントする
     var score = 0
@@ -56,6 +55,10 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         //壁用のノードを作成
         wallNode = SKNode()
         scrollNode.addChild(wallNode)
+        
+        //アイテム用のノードを作成
+        itemNode = SKNode()
+        scrollNode.addChild(itemNode)
         
         //メソッドを分割してスッキリさせる
         setupGround()
@@ -338,36 +341,49 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         let itemAnimation = SKAction.sequence([moveItem])
         
         let birdSize = SKTexture(imageNamed: "bird_a").size()
-        //アイテムの上下の振れ幅を鳥のサイズの5倍にする
-        let random_y_range = birdSize.height * 5
+    
+        //アイテムの上下の振れ幅を鳥のサイズの4倍にする
+        let random_y_range = birdSize.height * 4
         
         //アイテム画像を読み込む(画像優先)
         let itemTexture = SKTexture(imageNamed: "item")
         itemTexture.filteringMode = .linear
         
+        let slit_length = itemTexture.size().height
+        
         let groundSize = SKTexture(imageNamed: "ground").size()
         
         //Y軸下限位置
         let center_y = groundSize.height + (self.frame.size.height - groundSize.height) / 2
-        let under_item_lowest_y = center_y - wallTexture.size().height / 2 - random_y_range / 2
+        let under_item_lowest_y = center_y - slit_length / 2 - wallTexture.size().height / 2 - random_y_range / 2
         
         let createItemAnimation = SKAction.run({
             //アイテム関連のノードを乗せるノード
             let item = SKNode()
             item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: 0)
-            item.zPosition = -75
+            item.zPosition = -50
             
             let random_y = CGFloat.random(in: 0..<random_y_range)
             
             let under_item_y = under_item_lowest_y + random_y
             let under = SKSpriteNode(texture: wallTexture)
             under.position = CGPoint(x: 0, y: under_item_y)
+            
             item.addChild(under)
             
             let upper = SKSpriteNode(texture: wallTexture)
-            upper.position = CGPoint(x: 0, y: under_item_y + wallTexture.size().height)
+            upper.position = CGPoint(x: 0, y: under_item_y + wallTexture.size().height + slit_length)
             item.addChild(upper)
 
+            let scoreItemNode = SKNode()
+            scoreItemNode.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.height / 2)
+            scoreItemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
+            scoreItemNode.physicsBody?.isDynamic = false
+            scoreItemNode.physicsBody?.categoryBitMask = self.itemScoreCategory
+            scoreItemNode.physicsBody?.contactTestBitMask = self.birdCategory
+
+            item.addChild(scoreItemNode)
+            
             item.run(itemAnimation)
 
             self.itemNode.addChild(item)
@@ -444,7 +460,6 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         bestItemScoreLavelNode.zPosition = 100
         bestItemScoreLavelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
     }
-    
     
     //衝突した時に呼ばれるメソッド
     func didBegin(_ contact: SKPhysicsContact) {
