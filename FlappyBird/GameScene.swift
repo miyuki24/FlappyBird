@@ -23,7 +23,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     let groundCategory: UInt32 = 1 << 1
     let wallCategory: UInt32 = 1 << 2
     let scoreCategory: UInt32 = 1 << 3
-    let itemScoreCategory: UInt32 = 1 << 4
+    let itemCategory: UInt32 = 1 << 4
     
     //スコアをカウントする
     var score = 0
@@ -341,7 +341,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         let itemAnimation = SKAction.sequence([moveItem])
         
         let birdSize = SKTexture(imageNamed: "bird_a").size()
-    
+        
         //アイテムの上下の振れ幅を鳥のサイズの4倍にする
         let random_y_range = birdSize.height * 4
         
@@ -366,26 +366,26 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             let random_y = CGFloat.random(in: 0..<random_y_range)
             
             let under_item_y = under_item_lowest_y + random_y
-            let under = SKSpriteNode(texture: wallTexture)
+            let under = SKSpriteNode(texture: itemTexture)
             under.position = CGPoint(x: 0, y: under_item_y)
             
             item.addChild(under)
             
-            let upper = SKSpriteNode(texture: wallTexture)
+            let upper = SKSpriteNode(texture: itemTexture)
             upper.position = CGPoint(x: 0, y: under_item_y + wallTexture.size().height + slit_length)
             item.addChild(upper)
-
+            
             let scoreItemNode = SKNode()
-            scoreItemNode.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.height / 2)
+            scoreItemNode.position = CGPoint(x: itemTexture.size().width + birdSize.width / 2, y: under_item_y)
             scoreItemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
             scoreItemNode.physicsBody?.isDynamic = false
-            scoreItemNode.physicsBody?.categoryBitMask = self.itemScoreCategory
+            scoreItemNode.physicsBody?.categoryBitMask = self.itemCategory
             scoreItemNode.physicsBody?.contactTestBitMask = self.birdCategory
-
+            
             item.addChild(scoreItemNode)
             
             item.run(itemAnimation)
-
+            
             self.itemNode.addChild(item)
         })
         
@@ -452,6 +452,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         itemScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
         itemScoreLabelNode.zPosition = 100
         itemScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        itemScoreLabelNode.text = "Item Score:\(itemScore)"
+        self.addChild(itemScoreLabelNode)
         
         //アイテムベストスコアラベル
         bestItemScoreLavelNode = SKLabelNode()
@@ -459,6 +461,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         bestItemScoreLavelNode.position = CGPoint(x: 10, y: self.frame.size.height - 150)
         bestItemScoreLavelNode.zPosition = 100
         bestItemScoreLavelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        let bestItemScore = userDefaults.integer(forKey: "BESTITEM")
+        bestItemScoreLavelNode.text = "Item Best Score:\(bestItemScore)"
+        self.addChild(bestItemScoreLavelNode)
     }
     
     //衝突した時に呼ばれるメソッド
@@ -495,7 +500,31 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 //即座に保存させる
                 userDefaults.synchronize()
             }
+        
+        //スコア用の物体とぶつかった時
+        } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
             
+            print("PointUp")
+            itemScore += 1
+            itemScoreLabelNode.text = "Item Score:\(itemScore)"
+            
+            var bestItemScore = userDefaults.integer(forKey: "BESTITEM")
+            
+            //もしスコアがベストスコアより高かった時
+            if score > bestItemScore {
+                
+                //今回のスコアをベストスコアにする
+                bestItemScore = itemScore
+                
+                bestScoreLabelNode.text = "Best Score:\(bestItemScore)"
+                
+                //キーを指定して保存する
+                userDefaults.set(bestItemScore, forKey: "BESTITEM")
+                
+                //即座に保存させる
+                userDefaults.synchronize()
+            }
+                
             //壁か地面に衝突した時
         } else {
             
@@ -516,32 +545,6 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 //スクロールを停止させる
                 self.bird.speed = 0
             })
-        }
-        
-        //スコア用の物体とぶつかった時
-        if (contact.bodyA.categoryBitMask & itemScoreCategory) == itemScoreCategory || (contact.bodyB.categoryBitMask & itemScoreCategory) == itemScoreCategory {
-            
-            print("PointUp")
-            itemScore += 1
-            scoreLabelNode.text = "ItemScore:\(itemScore)"
-            
-            var bestItemScore = userDefaults.integer(forKey: "BESTITEM")
-            
-            //もしスコアがベストスコアより高かった時
-            if score > bestItemScore {
-                
-                //今回のスコアをベストスコアにする
-                bestItemScore = itemScore
-                
-                bestScoreLabelNode.text = "Best Score:\(bestItemScore)"
-                
-                //キーを指定して保存する
-                userDefaults.set(bestItemScore, forKey: "BESTITEM")
-                
-                //即座に保存させる
-                userDefaults.synchronize()
-            }
-            
         }
         
     }
