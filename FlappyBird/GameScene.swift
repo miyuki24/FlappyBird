@@ -360,8 +360,6 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         let createItemAnimation = SKAction.run({
             //アイテム関連のノードを乗せるノード
             let item = SKNode()
-            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: 0)
-            item.zPosition = -50
             
             let random_y = CGFloat.random(in: 0..<random_y_range)
             
@@ -373,16 +371,16 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             
             let upper = SKSpriteNode(texture: itemTexture)
             upper.position = CGPoint(x: 0, y: under_item_y + wallTexture.size().height + slit_length)
+            
             item.addChild(upper)
             
-            let scoreItemNode = SKNode()
-            scoreItemNode.position = CGPoint(x: itemTexture.size().width + birdSize.width / 2, y: under_item_y)
-            scoreItemNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
-            scoreItemNode.physicsBody?.isDynamic = false
-            scoreItemNode.physicsBody?.categoryBitMask = self.itemCategory
-            scoreItemNode.physicsBody?.contactTestBitMask = self.birdCategory
+            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: 0)
+            item.zPosition = -50
             
-            item.addChild(scoreItemNode)
+            item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
+            item.physicsBody?.isDynamic = false
+            item.physicsBody?.categoryBitMask = self.itemCategory
+            item.physicsBody?.contactTestBitMask = self.birdCategory
             
             item.run(itemAnimation)
             
