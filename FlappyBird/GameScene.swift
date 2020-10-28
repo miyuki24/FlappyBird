@@ -377,7 +377,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: 0)
             item.zPosition = -50
             
-            item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
+            item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: itemTexture.size(), height: itemTexture.size()))
             item.physicsBody?.isDynamic = false
             item.physicsBody?.categoryBitMask = self.itemCategory
             item.physicsBody?.contactTestBitMask = self.birdCategory
@@ -498,8 +498,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 //即座に保存させる
                 userDefaults.synchronize()
             }
-        
-        //スコア用の物体とぶつかった時
+            
+            //スコア用の物体とぶつかった時
         } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
             
             print("PointUp")
@@ -522,7 +522,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 //即座に保存させる
                 userDefaults.synchronize()
             }
-                
+            
             //壁か地面に衝突した時
         } else {
             
@@ -551,8 +551,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         //スコアをゼロに戻す
         score = 0
-        
-        scoreLabelNode.text = "Score:\(score)"
+        itemScore = 0
         
         //鳥の位置を初期位置に戻す
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
