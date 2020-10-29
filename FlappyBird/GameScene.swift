@@ -374,10 +374,10 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             
             item.addChild(upper)
             
-            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: 0)
+            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: under_item_y)
             item.zPosition = -50
             
-            item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: itemTexture.size(), height: itemTexture.size()))
+            item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: self.frame.size.width + wallTexture.size().width / 2, height: under_item_y))
             item.physicsBody?.isDynamic = false
             item.physicsBody?.categoryBitMask = self.itemCategory
             item.physicsBody?.contactTestBitMask = self.birdCategory
