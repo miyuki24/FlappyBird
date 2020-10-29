@@ -364,20 +364,24 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             let random_y = CGFloat.random(in: 0..<random_y_range)
             
             let under_item_y = under_item_lowest_y + random_y
-            let under = SKSpriteNode(texture: itemTexture)
+            let under = SKSpriteNode(texture: itemTexture, size: CGSize(width: 60, height: 40))
             under.position = CGPoint(x: 0, y: under_item_y)
+            under.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
+            under.physicsBody?.categoryBitMask = self.itemCategory
             
             item.addChild(under)
             
-            let upper = SKSpriteNode(texture: itemTexture)
+            let upper = SKSpriteNode(texture: itemTexture, size: CGSize(width: 60, height: 40))
             upper.position = CGPoint(x: 0, y: under_item_y + wallTexture.size().height + slit_length)
+            upper.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
+            upper.physicsBody?.categoryBitMask = self.itemCategory
             
             item.addChild(upper)
             
-            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: under_item_y)
+            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width, y: under_item_y)
             item.zPosition = -50
             
-            item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: self.frame.size.width + wallTexture.size().width / 2, height: under_item_y))
+            item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: self.frame.size.width + wallTexture.size().width, height: under_item_y))
             item.physicsBody?.isDynamic = false
             item.physicsBody?.categoryBitMask = self.itemCategory
             item.physicsBody?.contactTestBitMask = self.birdCategory
