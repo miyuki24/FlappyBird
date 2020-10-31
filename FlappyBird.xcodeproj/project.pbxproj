@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7218203D254C47360027324B /* pa1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7218203C254C47360027324B /* pa1.mp3 */; };
 		7288FD26252F437400E7AF5B /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7288FD25252F437400E7AF5B /* GameScene.swift */; };
 		72C18934252DDD26008E20AB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C18933252DDD26008E20AB /* AppDelegate.swift */; };
 		72C18936252DDD26008E20AB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C18935252DDD26008E20AB /* SceneDelegate.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7218203C254C47360027324B /* pa1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pa1.mp3; sourceTree = "<group>"; };
 		7288FD25252F437400E7AF5B /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		72C18930252DDD26008E20AB /* FlappyBird.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlappyBird.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72C18933252DDD26008E20AB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 				72C18937252DDD26008E20AB /* ViewController.swift */,
 				7288FD25252F437400E7AF5B /* GameScene.swift */,
 				72C18939252DDD26008E20AB /* Main.storyboard */,
+				7218203C254C47360027324B /* pa1.mp3 */,
 				72C1893C252DDD29008E20AB /* Assets.xcassets */,
 				72C1893E252DDD29008E20AB /* LaunchScreen.storyboard */,
 				72C18941252DDD29008E20AB /* Info.plist */,
@@ -131,6 +134,7 @@
 				72C18940252DDD29008E20AB /* LaunchScreen.storyboard in Resources */,
 				72C1893D252DDD29008E20AB /* Assets.xcassets in Resources */,
 				72C1893B252DDD26008E20AB /* Main.storyboard in Resources */,
+				7218203D254C47360027324B /* pa1.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

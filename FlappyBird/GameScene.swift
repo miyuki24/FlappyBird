@@ -34,7 +34,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     var bestScoreLabelNode:SKLabelNode!
     var itemScoreLabelNode:SKLabelNode!
     var bestItemScoreLavelNode: SKLabelNode!
-    
+
     //UserDefaultsクラスのUserDefaults.standardプロパティで値を保存する仕組みを得る
     let userDefaults:UserDefaults = UserDefaults.standard
     
@@ -503,7 +503,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 userDefaults.synchronize()
             }
             
-            //スコア用の物体とぶつかった時
+            //アイテム用の物体とぶつかった時
         } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
             
             print("PointUp")
@@ -511,6 +511,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             itemScoreLabelNode.text = "Item Score:\(itemScore)"
             
             var bestItemScore = userDefaults.integer(forKey: "BESTITEM")
+            
+            let itemSound = SKAction.playSoundFileNamed("pa1.mp3", waitForCompletion: false)
+            self.run(itemSound)
             
             //もしスコアがベストスコアより高かった時
             if score > bestItemScore {
