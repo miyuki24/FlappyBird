@@ -325,78 +325,124 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         addChild(bird)
     }
     
-    func setupItem(){
+    func setupItem() {
         
-        //壁画像を読み込む
+        //アイテムの画像を読み込む(テクスチャを作成)
+        let itemTexture = SKTexture(imageNamed: "item")
+        
         let wallTexture = SKTexture(imageNamed: "wall")
-        wallTexture.filteringMode = .linear
+        
+        //当たり判定する画像はlinearにして画像を優先させる
+        itemTexture.filteringMode = .linear
         
         //移動距離を計算
         let movingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
         
-        //4秒間で移動する
+        //4秒間でmovingDistanceの距離を移動するアクション
         let moveItem = SKAction.moveBy(x: -movingDistance, y: 0, duration:4)
         
-        //移動を繰り返す
-        let itemAnimation = SKAction.sequence([moveItem])
+        //自身を取り除くアクション
+        let removeItem = SKAction.removeFromParent()
         
+        //2つのアニメーションを順に実行するアクション(スクロールした後、自身を取り除く)
+        let ItemAnimation = SKAction.sequence([moveItem, removeItem])
+        
+        //鳥の画像サイズを取得
         let birdSize = SKTexture(imageNamed: "bird_a").size()
         
-        //アイテムの上下の振れ幅を鳥のサイズの4倍にする
-        let random_y_range = birdSize.height * 4
+        //鳥が通り抜ける隙間の長さを鳥のサイズの3倍とする
+        let slit_length = birdSize.height * 3
         
-        //アイテム画像を読み込む(画像優先)
-        let itemTexture = SKTexture(imageNamed: "item")
-        itemTexture.filteringMode = .linear
+        //隙間位置をランダムに上下させる際の振れ幅を鳥のサイズの3倍とする
+        let random_y_range = birdSize.height * 3
         
-        let slit_length = itemTexture.size().height
-        
+        //下のアイテムの最も低い位置を計算 ↓↓↓
+        //groundのサイズを取得
         let groundSize = SKTexture(imageNamed: "ground").size()
         
-        //Y軸下限位置
+        //アイテムが見える所の中心
         let center_y = groundSize.height + (self.frame.size.height - groundSize.height) / 2
-        let under_item_lowest_y = center_y - slit_length / 2 - wallTexture.size().height / 2 - random_y_range / 2
         
+        //下のアイテムの最も低い位置
+        let under_item_lowest_y = center_y - slit_length / 2 - wallTexture.size().height - random_y_range / 2
+        
+        //アイテムを生成するアクション
         let createItemAnimation = SKAction.run({
-            //アイテム関連のノードを乗せるノード
+            
+            //アイテムの情報を乗せるノードを作成
             let item = SKNode()
             
-            let random_y = CGFloat.random(in: 0..<random_y_range)
+            //アイテムを表示する位置を指定
+            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width, y: 0)
             
-            let under_item_y = under_item_lowest_y + random_y
-            
-            let under = SKSpriteNode(texture: itemTexture, size: CGSize(width: 60, height: 40))
-            under.position = CGPoint(x: 0, y: under_item_y)
-            under.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
-            under.physicsBody?.categoryBitMask = self.itemCategory
-            
-            item.addChild(under)
-            
-            let upper = SKSpriteNode(texture: itemTexture, size: CGSize(width: 60, height: 40))
-            upper.position = CGPoint(x: 0, y: under_item_y + itemTexture.size().height)
-            upper.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
-            upper.physicsBody?.categoryBitMask = self.itemCategory
-            
-            item.addChild(upper)
-            
-            //衝突判定
-            item.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.height / 2)
+            //雲より手前、地面より奥に表示する
             item.zPosition = -50
             
+            //0〜random_y_rangeまでのランダム値を生成
+            let random_y = CGFloat.random(in: 0..<random_y_range)
+            
+            //Y軸の下限にランダムな値を足して、下の壁のY座標を決定
+            let under_item_y = under_item_lowest_y + random_y
+            
+            //アイテムの画像を取得(テクスチャを作成)
+            let under = SKSpriteNode(texture: itemTexture)
+            
+            //下側のアイテムの位置を指定
+            under.position = CGPoint(x: 0, y: under_item_y)
+            
+            //物理演算を受けられるように四角形のノードとして設定
+            under.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
+            
+            //衝突したら動かないようにする
+            under.physicsBody?.isDynamic = false
+            
+            //下のアイテムを追加する
+            item.addChild(under)
+            
+            //アイテムの画像を取得(テクスチャを作成)
+            let upper = SKSpriteNode(texture: itemTexture)
+            
+            //アイテムの上部の位置を指定する
+            upper.position = CGPoint(x: 0, y: under_item_y + itemTexture.size().height + slit_length)
+            
+            //物理演算を受けられるように四角形のノードとして設定
+            upper.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
+            
+            //衝突したら動かないようにする
+            upper.physicsBody?.isDynamic = false
+            
+            //上のアイテムを追加する
+            item.addChild(upper)
+            
+            //見えないけど衝突した時にカウントするノードの位置を設定する
+            item.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.height / 2)
+            
+            //物理演算を受けられるように四角形のノードとして設定
             item.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: upper.size.width, height: self.frame.size.height))
+            
+            //衝突したら動かないようにする
             item.physicsBody?.isDynamic = false
-            item.physicsBody?.categoryBitMask = self.itemCategory
+            
+            //自身のカテゴリーを選択する
+            item.physicsBody?.categoryBitMask = self.scoreCategory
+            
+            //衝突の判定対象を指定する
             item.physicsBody?.contactTestBitMask = self.birdCategory
             
-            item.run(itemAnimation)
+            //アイテムにItemAnimation機能を設定する
+            item.run(ItemAnimation)
             
+            //itemNodeにitemを追加する
             self.itemNode.addChild(item)
         })
         
+        //次の壁作成までの時間待ちのアクション(壁が作成できても2秒間まつ)
         let waitAnimation = SKAction.wait(forDuration: 2)
         
+        //壁を作成->時間待ち->壁を作成を無限に繰り返すアクション
         let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
         
+        //wallNodeにrepeatForeverAnimationの機能を設定する
         itemNode.run(repeatForeverAnimation)
     }
     
@@ -505,7 +551,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 userDefaults.synchronize()
             }
             
-            //アイテム用の物体とぶつかった時
+        //アイテム用の物体とぶつかった時
         } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
             
             print("PointUp")
