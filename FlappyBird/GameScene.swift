@@ -351,7 +351,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         let birdSize = SKTexture(imageNamed: "bird_a").size()
         
         //鳥が通り抜ける隙間の長さを鳥のサイズの3倍とする
-        let slit_length = birdSize.height * 3
+        let slit_length = itemTexture.size
         
         //隙間位置をランダムに上下させる際の振れ幅を鳥のサイズの3倍とする
         let random_y_range = birdSize.height * 3
@@ -364,7 +364,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         let center_y = groundSize.height + (self.frame.size.height - groundSize.height) / 2
         
         //下のアイテムの最も低い位置
-        let under_item_lowest_y = center_y - slit_length / 2 - wallTexture.size().height - random_y_range / 2
+        let under_item_lowest_y = center_y - slit_length / 2 - itemTexture.size().height - random_y_range / 2
         
         //アイテムを生成するアクション
         let createItemAnimation = SKAction.run({
@@ -373,7 +373,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             let item = SKNode()
             
             //アイテムを表示する位置を指定
-            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width, y: 0)
+            item.position = CGPoint(x: self.frame.size.width + itemTexture.size().width, y: 0)
             
             //雲より手前、地面より奥に表示する
             item.zPosition = -50
@@ -424,7 +424,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             item.physicsBody?.isDynamic = false
             
             //自身のカテゴリーを選択する
-            item.physicsBody?.categoryBitMask = self.scoreCategory
+            item.physicsBody?.categoryBitMask = self.itemCategory
             
             //衝突の判定対象を指定する
             item.physicsBody?.contactTestBitMask = self.birdCategory
@@ -442,7 +442,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         //壁を作成->時間待ち->壁を作成を無限に繰り返すアクション
         let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
         
-        //wallNodeにrepeatForeverAnimationの機能を設定する
+        //itemNodeにrepeatForeverAnimationの機能を設定する
         itemNode.run(repeatForeverAnimation)
     }
     
