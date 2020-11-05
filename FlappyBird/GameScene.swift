@@ -570,7 +570,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                     //今回のスコアをベストスコアにする
                     bestItemScore = itemScore
                     
-                    bestScoreLabelNode.text = "Best Score:\(bestItemScore)"
+                    bestScoreLabelNode.text = "Best Item Score:\(bestItemScore)"
                     
                     //キーを指定して保存する
                     userDefaults.set(bestItemScore, forKey: "BESTITEM")
