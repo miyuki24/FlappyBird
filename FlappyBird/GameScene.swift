@@ -553,7 +553,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 //即座に保存させる
                 userDefaults.synchronize()
                 
-            //アイテム用の物体とぶつかった時
+                //アイテム用の物体とぶつかった時
             } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
                 
                 print("PointUp")
@@ -654,4 +654,5 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 restart()
             }
         }
+    }
 }
