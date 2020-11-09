@@ -49,9 +49,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         //背景色(最大数は1)
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
-        
-        
-        
+    
         //ゲームオーバー時に一括で止めるために親ノードを作成
         scrollNode = SKNode()
         addChild(scrollNode)
@@ -304,6 +302,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         //スプライトを作成
         bird = SKSpriteNode(texture: birdTextureA)
         
+        //鳥を表示する位置を指定する
+        bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
+        
         //鳥が重力を受けて下に落ちていく
         bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2)
         
@@ -318,9 +319,6 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         //衝突の判定対象を指定する
         bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory
-        
-        //鳥を表示する位置を指定する
-        bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
         
         //アニメーションをbirdに設定する
         bird.run(flap)
@@ -557,7 +555,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
                 //即座に保存させる
                 userDefaults.synchronize()
                 
-            }//アイテム用の物体とぶつかった時
+            }
+            //アイテム用の物体とぶつかった時
         } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
             
             print("PointUp")
@@ -631,8 +630,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         //回転をなくす
         bird.zRotation = 0
         
-        //壁を取り除く
+        //取り除く
         wallNode.removeAllChildren()
+        itemNode.removeAllChildren()
         
         //鳥とスクロールの速度を戻す
         bird.speed = 1
