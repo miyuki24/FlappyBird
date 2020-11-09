@@ -227,6 +227,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             
             //物理演算を受けられるように四角形のノードとして設定
             under.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
+            under.physicsBody?.categoryBitMask = self.wallCategory
             
             //衝突したら動かないようにする
             under.physicsBody?.isDynamic = false
@@ -242,6 +243,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             
             //物理演算を受けられるように四角形のノードとして設定
             upper.physicsBody = SKPhysicsBody(rectangleOf: wallTexture.size())
+            under.physicsBody?.categoryBitMask = self.wallCategory
             
             //衝突したら動かないようにする
             upper.physicsBody?.isDynamic = false
@@ -385,7 +387,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             //0〜random_y_rangeまでのランダム値を生成
             
             //Y軸の下限にランダムな値を足して、下の壁のY座標を決定
-            let under_item_y = item_lowest_y + random_y
+            //let under_item_y = item_lowest_y + random_y
             
             //アイテムの画像を取得(テクスチャを作成)
             //let under = SKSpriteNode(texture: itemTexture)
