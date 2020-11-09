@@ -618,7 +618,10 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         //スコアをゼロに戻す
         score = 0
+        scoreLabelNode.text = "Score:\(score)"
+        
         itemScore = 0
+        itemScoreLabelNode.text = "Item Score:\(itemScore)"
         
         //鳥の位置を初期位置に戻す
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
