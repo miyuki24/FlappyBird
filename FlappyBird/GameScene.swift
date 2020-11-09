@@ -50,6 +50,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         //背景色(最大数は1)
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
         
+        
+        
         //ゲームオーバー時に一括で止めるために親ノードを作成
         scrollNode = SKNode()
         addChild(scrollNode)
@@ -332,13 +334,13 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         //アイテムの画像を読み込む(テクスチャを作成)
         let itemTexture = SKTexture(imageNamed: "item")
         
-        //let wallTexture = SKTexture(imageNamed: "wall")
+        let wallTexture = SKTexture(imageNamed: "wall")
         
         //当たり判定する画像はlinearにして画像を優先させる
         itemTexture.filteringMode = .linear
         
         //移動距離を計算
-        let movingDistance = CGFloat(self.frame.size.width + itemTexture.size().width)
+        let movingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
         
         //4秒間でmovingDistanceの距離を移動するアクション
         let moveItem = SKAction.moveBy(x: -movingDistance, y: 0, duration:4)
@@ -377,7 +379,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
             let random_y = CGFloat.random(in: 0..<random_y_range)
             
             //アイテムを表示する位置を指定
-            item.position = CGPoint(x: self.frame.size.width + itemTexture.size().width / 2, y: item_lowest_y + random_y)
+            item.position = CGPoint(x: self.frame.size.width + wallTexture.size().width / 2, y: item_lowest_y + random_y)
             
             //雲より手前、地面より奥に表示する
             item.zPosition = -50
@@ -440,10 +442,11 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         })
         
         //次の壁作成までの時間待ちのアクション(壁が作成できても2秒間まつ)
-        let waitAnimation = SKAction.wait(forDuration: 2)
+        let waitAnimation = SKAction.wait(forDuration: 1)
+        let waitAnimation2 = SKAction.wait(forDuration: 1)
         
         //壁を作成->時間待ち->壁を作成を無限に繰り返すアクション
-        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
+        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([waitAnimation2, createItemAnimation, waitAnimation]))
         
         //itemNodeにrepeatForeverAnimationの機能を設定する
         itemNode.run(repeatForeverAnimation)
